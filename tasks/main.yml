@@ -1,0 +1,34 @@
+- name: Add user account for the rancher environment
+  user:
+    name: rancher
+    state: present
+    groups: docker
+    append: yes
+    shell: /bin/bash
+    skeleton: /etc/skel
+
+- name: Allow management public keys to login as rancher
+  authorized_key:
+    user: rancher
+    state: present
+    key: "{{ lookup('file', '{{item}}') }}"
+  loop: '{{ manage_pubkeys }}'
+
+# https://github.com/kubernetes/contrib/blob/master/ansible/roles/node/tasks/swapoff.yml
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+# https://github.com/kubernetes/contrib/blob/master/ansible/roles/node/tasks/swapoff.yml
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Set bridge-nf-call-iptables to true
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+
+- include_tasks: firewall.yml

@@ -1,0 +1,7 @@
+- name: Setup firewall rules for {{ host_ip }}
+  ufw:
+    rule: allow
+    port: '{{ item.port }}'
+    proto: '{{ item.proto }}'
+    src: '{{ host_ip }}'
+  loop: '{{ rules }}'
