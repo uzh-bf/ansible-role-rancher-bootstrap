@@ -12,15 +12,25 @@
     proto: 'tcp'
     src: '{{ rke_allowed_static }}'
 
-- name: Setup firewall rules for ingress from loadbalancers
-  include_tasks: firewall_nodes.yml
-  loop: "{{ groups.lb | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
-  loop_control:
-    loop_var: host_ip
-  vars:
-    rules:
-      - { proto: 'tcp', port: 80 }
-      - { proto: 'tcp', port: 443 }
+# - name: Setup firewall rules for ingress from loadbalancers
+#   include_tasks: firewall_nodes.yml
+#   loop: "{{ groups.lb | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+#   loop_control:
+#     loop_var: host_ip
+#   vars:
+#     rules:
+#       - { proto: 'tcp', port: 80 }
+#       - { proto: 'tcp', port: 443 }
+#   when: "'nodes' in group_names"
+
+- name: Setup firewall rule for public ingress
+  ufw:
+    rule: allow
+    port: '{{ item }}'
+    proto: 'tcp'
+  loop:
+    - '80'
+    - '443'
   when: "'nodes' in group_names"
 
 - name: Setup firewall rules for master-master communication
