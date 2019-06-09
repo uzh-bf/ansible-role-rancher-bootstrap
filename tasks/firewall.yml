@@ -34,7 +34,7 @@
 
 - name: Setup firewall rules for master-master communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list | select('defined') }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -51,7 +51,7 @@
 
 - name: Setup firewall rules for master-worker communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list | select('defined') }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -61,11 +61,11 @@
       - { proto: 'udp', port: 8472 }
       - { proto: 'tcp', port: '30000:32767' }
       - { proto: 'udp', port: '30000:32767' }
-  when: "'worker_nodes' in group_names"
+  when: "'master_nodes' in group_names"
 
 - name: Setup firewall rules for worker-master communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list | select('defined') }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -79,7 +79,7 @@
 
 - name: Setup firewall rules for worker-worker communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list | select('defined') }}"
   loop_control:
     loop_var: host_ip
   vars:
