@@ -31,11 +31,10 @@
   loop:
     - '80'
     - '443'
-  when: "'nodes' in group_names"
 
 - name: Setup firewall rules for master-master communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.master | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -48,11 +47,11 @@
       - { proto: 'tcp', port: 10250 }
       - { proto: 'tcp', port: '30000:32767' }
       - { proto: 'udp', port: '30000:32767' }
-  when: "'master' in group_names"
+  when: "'master_nodes' in group_names"
 
 - name: Setup firewall rules for master-worker communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.worker | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -62,11 +61,11 @@
       - { proto: 'udp', port: 8472 }
       - { proto: 'tcp', port: '30000:32767' }
       - { proto: 'udp', port: '30000:32767' }
-  when: "'master' in group_names"
+  when: "'worker_nodes' in group_names"
 
 - name: Setup firewall rules for worker-master communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.master | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.master_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -76,11 +75,11 @@
       - { proto: 'tcp', port: 10250 }
       - { proto: 'tcp', port: '30000:32767' }
       - { proto: 'udp', port: '30000:32767' }
-  when: "'worker' in group_names"
+  when: "'worker_nodes' in group_names"
 
 - name: Setup firewall rules for worker-worker communication
   include_tasks: firewall_nodes.yml
-  loop: "{{ groups.worker | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
+  loop: "{{ groups.worker_nodes | map('extract', hostvars, ['ansible_facts', 'eth0', 'ipv4', 'address']) | list }}"
   loop_control:
     loop_var: host_ip
   vars:
@@ -89,4 +88,4 @@
       - { proto: 'udp', port: 8472 }
       - { proto: 'tcp', port: '30000:32767' }
       - { proto: 'udp', port: '30000:32767' }
-  when: "'worker' in group_names"
+  when: "'worker_nodes' in group_names"
