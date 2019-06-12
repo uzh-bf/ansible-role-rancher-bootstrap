@@ -17,7 +17,7 @@
 
 - name: Generate a random encryption secret
   set_fact:
-    kube_secret: "{{ lookup('password', '/credentials/kube_secret length=32 chars=ascii_letters') | b64encode }}"
+    kube_secret: "{{ lookup('password', 'credentials/kube_secret length=32 chars=ascii_letters') | b64encode }}"
 
 - name: Inject the secret encryption config on master nodes
   template:
