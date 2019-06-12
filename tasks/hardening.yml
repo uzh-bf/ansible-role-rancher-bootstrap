@@ -15,6 +15,11 @@
     name: kernel.panic_on_oops
     value: '1'
 
+- name: Ensure the /etc/kubernetes directory exists
+  file:
+    path: /etc/kubernetes
+    state: directory
+
 - name: Generate a random encryption secret
   set_fact:
     kube_secret: "{{ lookup('password', 'credentials/kube_secret length=32 chars=ascii_letters') | b64encode }}"
