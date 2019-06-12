@@ -1,0 +1,58 @@
+# https://releases.rancher.com/documents/security/latest/Rancher_Hardening_Guide.pdf
+
+- name: Set vm.overcommit_memory to 1
+  sysctl:
+    name: vm.overcommit_memory
+    value: '1'
+
+- name: Set kernel.panic to 10
+  sysctl:
+    name: kernel.panic
+    value: '10'
+
+- name: Set kernel.panic_on_oops to 1
+  sysctl:
+    name: kernel.panic_on_oops
+    value: '1'
+
+- name: Generate a random encryption secret
+  set_fact:
+    kube_secret: "{{ lookup('password', '/credentials/kube_secret length=32 chars=ascii_letters') | b64encode }}"
+
+- name: Inject the secret encryption config on master nodes
+  template:
+    dest: /etc/kubernetes/encryption.yaml
+    src: encryption.j2
+    mode: 0600
+    owner: root
+    group: root
+  vars:
+    random_encryption_secret: '{{ kube_secret }}'
+  when: "'master_nodes' in group_names"
+
+- name: Inject the audit configuration file
+  copy:
+    src: audit.yml
+    dest: /etc/kubernetes/audit.yaml
+    mode: 0600
+    owner: root
+    group: root
+  when: "'master_nodes' in group_names"
+
+- name: Inject the rate-limiting admission configuration file
+  copy:
+    src: admission.yml
+    dest: /etc/kubernetes/admission.yaml
+    mode: 0600
+    owner: root
+    group: root
+  when: "'master_nodes' in group_names"
+
+- name: Inject the rate-limiting event configuration file
+  copy:
+    src: event.yml
+    dest: /etc/kubernetes/event.yaml
+    mode: 0600
+    owner: root
+    group: root
+  when: "'master_nodes' in group_names"

@@ -31,4 +31,5 @@
     name: net.bridge.bridge-nf-call-iptables
     value: '1'
 
+- include_tasks: hardening.yml
 - include_tasks: firewall.yml
