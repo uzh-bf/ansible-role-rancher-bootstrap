@@ -20,9 +20,9 @@
     path: /etc/kubernetes
     state: directory
 
-- name: Generate a random encryption secret
+- name: Prepare the encryption secret
   set_fact:
-    kube_secret: "{{ lookup('password', 'credentials/kube_secret length=32 chars=ascii_letters') | b64encode }}"
+    kube_secret: '{{ kube_secret | b64encode }}'
 
 - name: Inject the secret encryption config on master nodes
   template:
